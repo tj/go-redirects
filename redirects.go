@@ -4,6 +4,7 @@ package redirects
 import (
 	"bufio"
 	"io"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -39,6 +40,16 @@ type Rule struct {
 	Status int
 	Force  bool
 	Params Params
+}
+
+// IsProxy returns true if it's a proxy rule (aka contains a hostname).
+func (r *Rule) IsProxy() bool {
+	u, err := url.Parse(r.To)
+	if err != nil {
+		return false
+	}
+
+	return u.Host != ""
 }
 
 // Must parse utility.

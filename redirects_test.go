@@ -1,146 +1,50 @@
 package redirects_test
 
 import (
-	"encoding/json"
-	"os"
+	"testing"
 
+	"github.com/tj/assert"
 	"github.com/tj/go-redirects"
 )
 
-func Example() {
-	h := redirects.Must(redirects.ParseString(`
-		# Implicit 301 redirects
-		/home              /
-		/blog/my-post.php  /blog/my-post
-		/news              /blog
-		/google            https://www.google.com
+func TestParams_Has(t *testing.T) {
+	p := redirects.Params{
+		"foo": true,
+		"bar": "baz",
+	}
 
-		# Redirect with a 301
-		/home         /              301
+	assert.True(t, p.Has("foo"))
+	assert.True(t, p.Has("bar"))
+	assert.False(t, p.Has("baz"))
+}
 
-		# Redirect with a 302
-		/my-redirect  /              302
+func TestParams_Get(t *testing.T) {
+	p := redirects.Params{
+		"foo": true,
+		"bar": "baz",
+	}
 
-		# Rewrite a path
-		/pass-through /index.html    200
+	assert.Equal(t, true, p.Get("foo"))
+	assert.Equal(t, "baz", p.Get("bar"))
+	assert.Equal(t, nil, p.Get("baz"))
+}
 
-		# Show a custom 404 for this path
-		/ecommerce    /store-closed  404
+func TestRule_IsProxy(t *testing.T) {
+	t.Run("without host", func(t *testing.T) {
+		r := redirects.Rule{
+			From: "/blog",
+			To:   "/blog/engineering",
+		}
 
-		# Single page app rewrite
-		/*    /index.html   200
+		assert.False(t, r.IsProxy())
+	})
 
-		# Proxying
-		/api/*  https://api.example.com/:splat  200
+	t.Run("with host", func(t *testing.T) {
+		r := redirects.Rule{
+			From: "/blog",
+			To:   "https://blog.apex.sh",
+		}
 
-		# Forcing
-		/app/*  /app/index.html  200!
-
-		# Params
-		/	/something	302	foo=bar
-		/	/something	302	foo=bar bar=baz
-  `))
-
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	enc.Encode(h)
-	// Output:
-	// 	[
-	//   {
-	//     "From": "/home",
-	//     "To": "/",
-	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/blog/my-post.php",
-	//     "To": "/blog/my-post",
-	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/news",
-	//     "To": "/blog",
-	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/google",
-	//     "To": "https://www.google.com",
-	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/home",
-	//     "To": "/",
-	//     "Status": 301,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/my-redirect",
-	//     "To": "/",
-	//     "Status": 302,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/pass-through",
-	//     "To": "/index.html",
-	//     "Status": 200,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/ecommerce",
-	//     "To": "/store-closed",
-	//     "Status": 404,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/*",
-	//     "To": "/index.html",
-	//     "Status": 200,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/api/*",
-	//     "To": "https://api.example.com/:splat",
-	//     "Status": 200,
-	//     "Force": false,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/app/*",
-	//     "To": "/app/index.html",
-	//     "Status": 200,
-	//     "Force": true,
-	//     "Params": null
-	//   },
-	//   {
-	//     "From": "/",
-	//     "To": "/something",
-	//     "Status": 302,
-	//     "Force": false,
-	//     "Params": {
-	//       "foo": "bar"
-	//     }
-	//   },
-	//   {
-	//     "From": "/",
-	//     "To": "/something",
-	//     "Status": 302,
-	//     "Force": false,
-	//     "Params": {
-	//       "bar": "baz",
-	//       "foo": "bar"
-	//     }
-	//   }
-	// ]
+		assert.True(t, r.IsProxy())
+	})
 }
