@@ -35,10 +35,28 @@ func (p *Params) Get(key string) interface{} {
 
 // A Rule represents a single redirection or rewrite rule.
 type Rule struct {
-	From   string
-	To     string
+	// From is the path which is matched to perform the rule.
+	From string
+
+	// To is the destination which may be relative, or absolute
+	// in order to proxy the request to another URL.
+	To string
+
+	// Status is one of the following:
+	//
+	// - 3xx a redirect
+	// - 200 a rewrite
+	// - defaults to 301 redirect
+	//
+	// When proxying this field is ignored.
+	//
 	Status int
-	Force  bool
+
+	// Force is used to force a rewrite or redirect even
+	// when a response (or static file) is present.
+	Force bool
+
+	// Params is an optional arbitrary map of key/value pairs.
 	Params Params
 }
 
