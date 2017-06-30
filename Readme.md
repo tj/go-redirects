@@ -4,7 +4,7 @@ Redirect format parser to match Netlify's [format](https://www.netlify.com/docs/
 
 ## Example
 
-```
+```sh
 # Implicit 301 redirects
 /home              /
 /blog/my-post.php  /blog/my-post
