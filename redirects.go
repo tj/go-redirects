@@ -42,6 +42,11 @@ type Rule struct {
 	Params Params
 }
 
+// IsRewrite returns true if the rule represents a rewrite (status 200).
+func (r *Rule) IsRewrite() bool {
+	return r.Status == 200
+}
+
 // IsProxy returns true if it's a proxy rule (aka contains a hostname).
 func (r *Rule) IsProxy() bool {
 	u, err := url.Parse(r.To)
