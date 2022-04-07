@@ -3,6 +3,7 @@ package redirects
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net/url"
 	"strconv"
@@ -106,7 +107,7 @@ func Parse(r io.Reader) (rules []Rule, err error) {
 
 		// missing dst
 		if len(fields) <= 1 {
-			return nil, errors.Wrapf(err, "missing destination path: %q", line)
+			return nil, fmt.Errorf("missing destination path: %q", line)
 		}
 
 		// src and dst
